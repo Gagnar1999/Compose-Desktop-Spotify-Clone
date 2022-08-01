@@ -1,0 +1,13 @@
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\SpotifyLibrary.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\utils\ModifierExtentions.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\detail\SpotifyDetailScreen.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\SpotifyComponents.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\main.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\theme\colors.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\utils\VerticalGrid.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\data\SpotifyDataProvider.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\SpotifyHome.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\data\Album.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\detail\SpotifySongListItem.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\SpotifySearchScreen.kt
+C:\Users\17865\Desktop\Learning\ComposeSpotifyDesktop\src\main\kotlin\ui\SpotifyNavType.kt
