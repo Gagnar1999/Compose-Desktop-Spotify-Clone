@@ -1,7 +1,9 @@
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,9 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key.Companion.Window
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,8 +44,8 @@ import ui.detail.SpotifyDetailScreen
 
 fun main() =
     application() {
-        Window(onCloseRequest = ::exitApplication, ) {
-            val darkTheme  = remember { mutableStateOf(false) }
+        Window(onCloseRequest = ::exitApplication) {
+            val darkTheme = remember { mutableStateOf(false) }
             MaterialTheme(colors = if (darkTheme.value) DarkGreenColorPalette else LightGreenColorPalette) {
                 SpotifyApp(darkTheme)
             }
@@ -49,9 +54,9 @@ fun main() =
 
 @Composable
 fun SpotifyApp(darkTheme: MutableState<Boolean>) {
-    val spotifyNavItemState = mutableStateOf(SpotifyNavType.HOME)
+    val spotifyNavItemState = remember { mutableStateOf(SpotifyNavType.HOME) }
 
-    val showAlbumDetailState = mutableStateOf<Album?>(null)
+    val showAlbumDetailState = remember { mutableStateOf<Album?>(null) }
     Box {
         Row {
             SpotifySideBar(spotifyNavItemState, showAlbumDetailState, darkTheme)
@@ -68,8 +73,8 @@ fun SpotifyBodyContent(spotifyNavType: SpotifyNavType, album: MutableState<Album
             album.value = null
         }
     } else {
-        Crossfade(targetState = spotifyNavType) { spotifyNavType ->
-            when (spotifyNavType) {
+        Crossfade(targetState = spotifyNavType, animationSpec = tween(1000)) { state ->
+            when (state) {
                 SpotifyNavType.HOME -> SpotifyHome { onAlbumSelected ->
                     album.value = onAlbumSelected
                 }
@@ -123,11 +128,13 @@ fun SpotifySideBar(
             showAlbumDetailState.value = null
             selectedIndex.value = -1
         }
+        Spacer(modifier = Modifier.height(12.dp))
         SideBarNavItem("Search", Icons.Default.Search, spotifyNavItemState.value == SpotifyNavType.SEARCH) {
             spotifyNavItemState.value = SpotifyNavType.SEARCH
             showAlbumDetailState.value = null
             selectedIndex.value = -1
         }
+        Spacer(modifier = Modifier.height(12.dp))
         SideBarNavItem("Your Library", Icons.Default.List, spotifyNavItemState.value == SpotifyNavType.LIBRARY) {
             spotifyNavItemState.value = SpotifyNavType.LIBRARY
             showAlbumDetailState.value = null
@@ -242,17 +249,24 @@ fun SideBarNavItem(title: String, icon: ImageVector, selected: Boolean, onClick:
         animateColorAsState(if (selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.onSecondary)
     Row(
         modifier = Modifier
-            .fillMaxWidth().background(animatedBackgroundColor.value).clip(RoundedCornerShape(4.dp)).padding(16.dp)
+            .fillMaxWidth().clip(RoundedCornerShape(16.dp))
+            .background(animatedBackgroundColor.value)
             .clickable {
                 onClick.invoke()
             }
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = icon, tint = animatedContentColor.value, contentDescription = "")
+        Icon(
+            imageVector = icon,
+            tint = animatedContentColor.value,
+            contentDescription = "",
+        )
         Text(
             title,
             style = typography.body1,
             color = animatedContentColor.value,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(start = 12.dp)
         )
     }
 }
