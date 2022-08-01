@@ -1,3 +1,11 @@
+<h1 align="center">Note: I am not the owner of this repository, i have just clone the repository from git@github.com:Gurupreet/ComposeSpotifyDesktop.git here, i migrated the old compose apis to latest apis.
+Originally all the rights of this code goes to this user Gurpreet Singh(https://github.com/Gurupreet)
+also thank you Gurpreet Sir for making this amazing repository public.
+Sorry i don't take permission from you  but i want to start KMM.
+Thanks
+</h1>
+
+
 <h1 align="center">Compose Spotify Desktop</h1>
 
 <div align="center">
