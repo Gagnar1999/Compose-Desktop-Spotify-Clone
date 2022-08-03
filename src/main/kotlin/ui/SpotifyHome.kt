@@ -13,9 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,7 +80,10 @@ fun SpotifyStoryItem(album: Album) {
         contentDescription = "",
         modifier = Modifier.padding(16.dp).size(100.dp).clickable {
 
-        }.clip(CircleShape).border(shape = CircleShape, border = BorderStroke(1.dp, brush = spotifyGradient()))
+        }
+            .clip(CircleShape)
+            .border(shape = CircleShape, border = BorderStroke(1.dp, brush = spotifyGradient()))
+            .shadow(elevation = 8.dp, clip = false, shape = RectangleShape, spotColor = Color.Green, ambientColor = Color.Red)
 
     )
 }

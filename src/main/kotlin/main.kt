@@ -1,10 +1,11 @@
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -16,22 +17,18 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key.Companion.Window
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import com.guru.composecookbook.ui.demoui.spotify.data.Album
 import com.guru.composecookbook.ui.demoui.spotify.data.SpotifyDataProvider
@@ -42,15 +39,17 @@ import ui.SpotifySearchScreen
 import ui.detail.SpotifyDetailScreen
 
 
-fun main() =
-    application() {
-        Window(onCloseRequest = ::exitApplication) {
-            val darkTheme = remember { mutableStateOf(false) }
-            MaterialTheme(colors = if (darkTheme.value) DarkGreenColorPalette else LightGreenColorPalette) {
-                SpotifyApp(darkTheme)
-            }
+enum class state{
+    EXPANDED, COLLAPSED
+}
+fun main() = application() {
+    Window(onCloseRequest = ::exitApplication, title = "Spotify Clone") {
+        val darkTheme = remember { mutableStateOf(false) }
+        MaterialTheme(colors = if (darkTheme.value) DarkGreenColorPalette else LightGreenColorPalette) {
+            SpotifyApp(darkTheme)
         }
     }
+}
 
 @Composable
 fun SpotifyApp(darkTheme: MutableState<Boolean>) {
@@ -96,11 +95,17 @@ fun SpotifySideBar(
     darkTheme: MutableState<Boolean>
 ) {
     val selectedIndex = remember { mutableStateOf(-1) }
-
+    val sideBarState = remember { mutableStateOf(state.COLLAPSED) }
+    val sideBarWidth : Dp  by animateDpAsState(if(sideBarState.value == state.COLLAPSED) 50.dp else 250.dp )
     Column(
-        modifier = Modifier.fillMaxHeight().width(250.dp).background(MaterialTheme.colors.surface)
-            .padding(8.dp),
-        horizontalAlignment = Alignment.Start
+        modifier = Modifier.fillMaxHeight().width(sideBarWidth).background(MaterialTheme.colors.surface)
+            .padding(8.dp).focusable(true).onFocusChanged {
+                if (it.isFocused) {
+                    sideBarState.value = state.EXPANDED
+                } else {
+                    sideBarState.value = state.COLLAPSED
+                }
+            }, horizontalAlignment = Alignment.Start
     ) {
         Spacer(modifier = Modifier.height(32.dp))
         Image(
@@ -111,7 +116,8 @@ fun SpotifySideBar(
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().clickable { darkTheme.value = !darkTheme.value }.padding(16.dp),
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+                .clickable { darkTheme.value = !darkTheme.value }.padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Toggle Theme", style = typography.h6.copy(fontSize = 14.sp), color = MaterialTheme.colors.onSurface)
@@ -123,19 +129,25 @@ fun SpotifySideBar(
 
         }
         Spacer(modifier = Modifier.height(20.dp))
-        SideBarNavItem("Home", Icons.Default.Home, spotifyNavItemState.value == SpotifyNavType.HOME) {
+        SideBarNavItem(
+            "Home", Icons.Default.Home, spotifyNavItemState.value == SpotifyNavType.HOME, sideBarWidth
+        ) {
             spotifyNavItemState.value = SpotifyNavType.HOME
             showAlbumDetailState.value = null
             selectedIndex.value = -1
         }
         Spacer(modifier = Modifier.height(12.dp))
-        SideBarNavItem("Search", Icons.Default.Search, spotifyNavItemState.value == SpotifyNavType.SEARCH) {
+        SideBarNavItem(
+            "Search", Icons.Default.Search, spotifyNavItemState.value == SpotifyNavType.SEARCH, sideBarWidth
+        ) {
             spotifyNavItemState.value = SpotifyNavType.SEARCH
             showAlbumDetailState.value = null
             selectedIndex.value = -1
         }
         Spacer(modifier = Modifier.height(12.dp))
-        SideBarNavItem("Your Library", Icons.Default.List, spotifyNavItemState.value == SpotifyNavType.LIBRARY) {
+        SideBarNavItem(
+            "Your Library", Icons.Default.List, spotifyNavItemState.value == SpotifyNavType.LIBRARY, sideBarWidth
+        ) {
             spotifyNavItemState.value = SpotifyNavType.LIBRARY
             showAlbumDetailState.value = null
             selectedIndex.value = -1
@@ -152,10 +164,7 @@ fun SpotifySideBar(
 @Composable
 fun PlayerBottomBar(modifier: Modifier) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colors.secondary)
-            .padding(8.dp),
+        modifier = modifier.fillMaxWidth().background(color = MaterialTheme.colors.secondary).padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
@@ -242,31 +251,29 @@ fun PlayListsSideBar(selectedIndex: Int, onPlayListSelected: (Int) -> Unit) {
 
 
 @Composable
-fun SideBarNavItem(title: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
+fun SideBarNavItem(title: String, icon: ImageVector, selected: Boolean, width: Dp, onClick: () -> Unit) {
     val animatedBackgroundColor =
         animateColorAsState(if (selected) MaterialTheme.colors.secondary else MaterialTheme.colors.surface)
     val animatedContentColor =
         animateColorAsState(if (selected) MaterialTheme.colors.onSurface else MaterialTheme.colors.onSecondary)
     Row(
-        modifier = Modifier
-            .fillMaxWidth().clip(RoundedCornerShape(16.dp))
-            .background(animatedBackgroundColor.value)
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(animatedBackgroundColor.value)
             .clickable {
                 onClick.invoke()
-            }
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            }.padding(8.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             tint = animatedContentColor.value,
             contentDescription = "",
         )
-        Text(
-            title,
-            style = typography.body1,
-            color = animatedContentColor.value,
-            modifier = Modifier.padding(start = 12.dp)
-        )
+        if (width > 80.dp) {
+            Text(
+                title,
+                style = typography.body1,
+                color = animatedContentColor.value,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+        }
     }
 }

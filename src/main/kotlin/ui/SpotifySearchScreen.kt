@@ -1,8 +1,10 @@
 package ui
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -48,7 +50,8 @@ fun SpotifySearchScreen(onAlbumSelected: (Album) -> Unit) {
 @Composable
 fun SpotifySearchLane(onAlbumSelected: (Album) -> Unit) {
     val items = remember { SpotifyDataProvider.albums.asReversed() }
-    LazyRow(modifier = Modifier.padding(start = 8.dp)) {
+    val listState = rememberLazyListState()
+    LazyRow(modifier = Modifier.padding(start = 8.dp), state = listState) {
         itemsIndexed(items) { index, item ->
             SpotifySearchGridItem(item, modifier = Modifier.width(400.dp)) {
                 onAlbumSelected.invoke(item)
@@ -87,8 +90,8 @@ fun SpotifySearchBar() {
 fun SpotifySearchGrid(onAlbumSelected: (Album) -> Unit) {
     val items = remember { SpotifyDataProvider.albums + SpotifyDataProvider.albums }
     //This is not Lazy at the moment Soon we will have LazyLayout coming then will
-    //Update it so we have better performance
-    VerticalGrid(columns = 6, modifier = Modifier.padding(horizontal = 8.dp)) {
+    //Update it, so we have better performance
+    VerticalGrid(columns = 6, modifier = Modifier.padding(horizontal = 8.dp).focusable(false)) {
         items.forEach {
             SpotifySearchGridItem(it) {
                 onAlbumSelected.invoke(it)

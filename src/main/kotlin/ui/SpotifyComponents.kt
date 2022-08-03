@@ -6,7 +6,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -25,15 +27,20 @@ import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.guru.composecookbook.ui.demoui.spotify.data.Album
 import graySurface
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.skia.Bitmap
 import spotifyGreen
 import utils.horizontalGradientBackground
+import java.awt.image.BufferedImage
 import java.io.File
+import java.lang.Exception
+import javax.imageio.ImageIO
 
 @Composable
 fun SpotifyHomeGridItem(album: Album) {
@@ -132,9 +139,9 @@ fun SpotifyLaneItem(album: Album, onclick: () -> Unit) {
 }
 
 @Composable
-fun SpotifySearchGridItem(album: Album, modifier: Modifier = Modifier, onclick: () -> Unit) {
-    val file = File(album.imageId)
-    val dominantColor = remember(album.id) { getDominantColor() }
+fun SpotifySearchGridItem(album: Album, modifier: Modifier = Modifier, onclick: () -> Unit ) {
+    val scope = rememberCoroutineScope()
+    val dominantColor = remember(album.id) { getDominantColor(album.imageId) }
     val dominantGradient = remember(album.id) { listOf(dominantColor, dominantColor.copy(alpha = 0.6f)) }
 
     Row(
@@ -157,14 +164,21 @@ fun SpotifySearchGridItem(album: Album, modifier: Modifier = Modifier, onclick: 
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(100.dp)
                 .align(Alignment.Bottom)
-                .graphicsLayer(translationX = 40f, rotationZ = 32f, shadowElevation = 16f),
+                .graphicsLayer(rotationZ = 5.0f),
             contentDescription = ""
         )
     }
 }
 
+fun getDominantColor(path:String): Color {
+    return try {
+        useResource(path){
+            val image = ImageIO.read(it)
+            Color(image.getRGB(10,10))
+        }
+    } catch (e : Exception){
+        println(e.message)
+        Color.Green
+    }
 
-fun getDominantColor(bitmap: Bitmap?=null): Color {
-    val colorCode = bitmap?.getColor(10, 10)
-    return Color.Red
 }

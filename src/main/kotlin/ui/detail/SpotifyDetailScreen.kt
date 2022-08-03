@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asDesktopBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -33,12 +34,13 @@ import spotifyGreen
 import ui.getDominantColor
 import utils.horizontalGradientBackground
 import utils.verticalGradientBackground
+import java.io.File
 
 @Composable
 fun SpotifyDetailScreen(album: Album, onBack: () -> Unit) {
     val album = remember(album.id) { album }
     val scrollState = rememberScrollState(0)
-    val dominantColor = remember(album.id) { getDominantColor() }
+    val dominantColor = remember(album.id) { getDominantColor(album.imageId) }
     val surface = MaterialTheme.colors.surface
     val dominantGradient = remember(album.id) { listOf(dominantColor, surface) }
     val surfaceGradient =
